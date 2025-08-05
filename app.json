@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Myapp",
-    "slug": "Myapp",
+    "name": "Kenesis Vision",
+    "slug": "kenesis-vision",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
