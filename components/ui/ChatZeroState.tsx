@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import Animated, {
+  FadeInUp,
+  FadeOutDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming
+} from 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SuggestionCard } from './SuggestionCard';
-import { UnifiedQueryBar } from './UnifiedQueryBar';
+import { SimpleQueryBar } from './SimpleQueryBar';
 
 interface ChatZeroStateProps {
   onSuggestionPress?: (suggestion: string) => void;
@@ -13,15 +19,19 @@ interface ChatZeroStateProps {
   onImagePress?: () => void;
 }
 
-export function ChatZeroState({ 
-  onSuggestionPress, 
+export function ChatZeroState({
+  onSuggestionPress,
   onQuerySubmit,
   onVoicePress,
   onAddPress,
-  onImagePress 
+  onImagePress
 }: ChatZeroStateProps) {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? COLORS.dark : COLORS.light;
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  const suggestionsOpacity = useSharedValue(1);
+  const suggestionsTranslateY = useSharedValue(0);
 
   const handleSuggestionPress = (suggestion: string, slug: string) => {
     onSuggestionPress?.(suggestion);
@@ -44,6 +54,25 @@ export function ChatZeroState({
   const handleImagePress = () => {
     onImagePress?.();
   };
+
+  const handleInputFocusChange = (focused: boolean) => {
+    setIsInputFocused(focused);
+
+    if (focused) {
+      // Hide suggestions with animation when keyboard appears
+      suggestionsOpacity.value = withTiming(0, { duration: 200 });
+      suggestionsTranslateY.value = withTiming(-20, { duration: 200 });
+    } else {
+      // Show suggestions with animation when keyboard disappears
+      suggestionsOpacity.value = withTiming(1, { duration: 300 });
+      suggestionsTranslateY.value = withTiming(0, { duration: 300 });
+    }
+  };
+
+  const suggestionsAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: suggestionsOpacity.value,
+    transform: [{ translateY: suggestionsTranslateY.value }],
+  }));
 
   return (
     <View style={styles.container}>
@@ -83,7 +112,7 @@ export function ChatZeroState({
         {/* Kenesis Vision Suggestions */}
         <Animated.View
           entering={FadeInUp.duration(600).delay(300).springify().damping(15).stiffness(100)}
-          style={styles.suggestionsContainer}
+          style={[styles.suggestionsContainer, suggestionsAnimatedStyle]}
         >
           {kenesisVisionSuggestions.map((suggestion, index) => (
             <SuggestionCard
@@ -97,12 +126,13 @@ export function ChatZeroState({
         </Animated.View>
       </ScrollView>
 
-      {/* Unified Query Bar */}
-      <UnifiedQueryBar
+      {/* Simple Query Bar - positioned above navbar */}
+      <SimpleQueryBar
         onSubmit={handleQuerySubmit}
         onVoicePress={handleVoicePress}
         onAddPress={handleAddPress}
         onImagePress={handleImagePress}
+        onFocusChange={handleInputFocusChange}
       />
     </View>
   );
@@ -141,7 +171,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 120, // Account for unified query bar
   },
   header: {
     flexDirection: 'row',
@@ -184,7 +214,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   greetingContainer: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   greeting: {
     fontSize: 36,
@@ -193,65 +223,7 @@ const styles = StyleSheet.create({
     lineHeight: 44,
   },
   suggestionsContainer: {
-    gap: 16,
     marginBottom: 32,
-  },
-  suggestionItem: {
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  suggestionText: {
-    fontSize: 16,
-    fontFamily: 'SF Pro Display',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  suggestionCategory: {
-    fontSize: 14,
-    fontFamily: 'SF Pro Display',
-    fontWeight: '400',
-  },
-  actionButtonsContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    paddingHorizontal: 20,
-  },
-  actionButtonsWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  actionButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    minWidth: 80,
-  },
-  actionEmoji: {
-    fontSize: 20,
-    marginBottom: 4,
-  },
-  actionLabel: {
-    fontSize: 12,
-    fontFamily: 'SF Pro Display',
-    fontWeight: '500',
-    textAlign: 'center',
   },
 });
 

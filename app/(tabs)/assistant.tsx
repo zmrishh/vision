@@ -1,12 +1,13 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { StyleSheet, View, StatusBar, Text } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
-import { ChatBubble } from '@/components/ui/ChatBubble';
+import React, { useState, useCallback, useMemo } from 'react';
+import { StyleSheet, View, StatusBar, Alert } from 'react-native';
 import { ChatZeroState } from '@/components/ui/ChatZeroState';
-import { QueryBar } from '@/components/ui/QueryBar';
+import { UnifiedChatInterface } from '@/components/ui/UnifiedChatInterface';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import * as Haptics from 'expo-haptics';
+import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import { Audio } from 'expo-av';
 
 interface ChatMessage {
   id: string;
@@ -20,7 +21,6 @@ export default function AssistantScreen() {
   const colorScheme = useColorScheme();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const flashListRef = useRef<any>(null);
 
   // Start with empty messages to show zero state
   // Remove sample data initialization
@@ -77,23 +77,156 @@ export default function AssistantScreen() {
       
       setIsTyping(false);
       setMessages(prev => [...prev, assistantMessage]);
-      
-      // Scroll to bottom after new message
-      setTimeout(() => {
-        flashListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
     }, 1500 + Math.random() * 1000); // Random delay between 1.5-2.5 seconds
-    
-    // Scroll to bottom after user message
-    setTimeout(() => {
-      flashListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
   }, []);
 
-  const handleVoicePress = useCallback(() => {
+  const handleVoicePress = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Handle voice input
-    console.log('Voice input activated');
+    
+    try {
+      // Request audio recording permissions
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant microphone permission to use voice input.');
+        return;
+      }
+
+      // Configure audio mode for recording
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      Alert.alert(
+        'Voice Input',
+        'Voice recording functionality would be implemented here. This would:\n\n• Start audio recording\n• Convert speech to text\n• Submit the transcribed text',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Simulate Voice Input', 
+            onPress: () => {
+              const simulatedVoiceInput = "How do I calibrate my Kenesis Vision glasses?";
+              handleQuerySubmit(simulatedVoiceInput);
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Voice input error:', error);
+      Alert.alert('Error', 'Failed to initialize voice input.');
+    }
+  }, []);
+
+  const handleAddPress = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    Alert.alert(
+      'Add Content',
+      'What would you like to add?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Document', 
+          onPress: async () => {
+            try {
+              const result = await DocumentPicker.getDocumentAsync({
+                type: '*/*',
+                copyToCacheDirectory: true,
+              });
+              
+              if (!result.canceled && result.assets[0]) {
+                const file = result.assets[0];
+                const message = `I've attached a document: ${file.name}`;
+                handleQuerySubmit(message);
+              }
+            } catch (error) {
+              console.error('Document picker error:', error);
+              Alert.alert('Error', 'Failed to pick document.');
+            }
+          }
+        },
+        { 
+          text: 'Text Note', 
+          onPress: () => {
+            Alert.prompt(
+              'Add Text Note',
+              'Enter your note:',
+              (text) => {
+                if (text && text.trim()) {
+                  handleQuerySubmit(`Note: ${text.trim()}`);
+                }
+              }
+            );
+          }
+        }
+      ]
+    );
+  }, []);
+
+  const handleImagePress = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    Alert.alert(
+      'Add Image',
+      'Choose image source:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Camera', 
+          onPress: async () => {
+            try {
+              const { status } = await ImagePicker.requestCameraPermissionsAsync();
+              if (status !== 'granted') {
+                Alert.alert('Permission Required', 'Please grant camera permission to take photos.');
+                return;
+              }
+
+              const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+              });
+
+              if (!result.canceled && result.assets[0]) {
+                const message = `I've taken a photo for analysis. What would you like to know about this image?`;
+                handleQuerySubmit(message);
+              }
+            } catch (error) {
+              console.error('Camera error:', error);
+              Alert.alert('Error', 'Failed to access camera.');
+            }
+          }
+        },
+        { 
+          text: 'Photo Library', 
+          onPress: async () => {
+            try {
+              const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== 'granted') {
+                Alert.alert('Permission Required', 'Please grant photo library permission to select images.');
+                return;
+              }
+
+              const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+              });
+
+              if (!result.canceled && result.assets[0]) {
+                const message = `I've selected an image for analysis. What would you like to know about this image?`;
+                handleQuerySubmit(message);
+              }
+            } catch (error) {
+              console.error('Image picker error:', error);
+              Alert.alert('Error', 'Failed to access photo library.');
+            }
+          }
+        }
+      ]
+    );
   }, []);
 
   const handleSuggestionPress = useCallback((suggestion: string) => {
@@ -143,36 +276,6 @@ export default function AssistantScreen() {
     }, 1500 + Math.random() * 1000);
   }, [setMessages, setIsTyping]);
 
-  const handleActionPress = useCallback((actionId: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Handle action button press
-    console.log('Action pressed:', actionId);
-    
-    switch (actionId) {
-      case 'recall':
-        // Navigate to memory search or trigger recall functionality
-        break;
-      case 'bookmark':
-        // Open bookmark/save functionality
-        break;
-      case 'summarize':
-        // Trigger daily summary
-        break;
-    }
-  }, []);
-
-  const renderMessage = useCallback(({ item }: { item: ChatMessage }) => (
-    <ChatBubble
-      id={item.id}
-      message={item.message}
-      timestamp={item.timestamp}
-      isUser={item.isUser}
-      isTyping={item.isTyping}
-    />
-  ), []);
-
-  const keyExtractor = useCallback((item: ChatMessage) => item.id, []);
-
   // Create typing indicator message when needed
   const messagesWithTyping = useMemo(() => {
     if (isTyping) {
@@ -195,41 +298,24 @@ export default function AssistantScreen() {
         backgroundColor={Colors[colorScheme ?? 'light'].background}
       />
       
-      {/* Chat Header - Only show when there are messages */}
-      {messagesWithTyping.length > 0 && (
-        <View style={[styles.header, { backgroundColor: Colors[colorScheme ?? 'light'].background }]}>
-          <Text style={[styles.headerTitle, { color: Colors[colorScheme ?? 'light'].text }]}>
-            AI Assistant
-          </Text>
-          <Text style={[styles.headerSubtitle, { color: Colors[colorScheme ?? 'light'].tabIconDefault }]}>
-            Online
-          </Text>
-        </View>
-      )}
-      
       {/* Chat Messages or Zero State */}
       {messagesWithTyping.length === 0 ? (
         <ChatZeroState 
-          onSuggestionPress={handleSuggestionPress} 
-          onActionPress={handleActionPress}
+          onSuggestionPress={handleSuggestionPress}
+          onQuerySubmit={handleQuerySubmit}
+          onVoicePress={handleVoicePress}
+          onAddPress={handleAddPress}
+          onImagePress={handleImagePress}
         />
       ) : (
-        <FlashList
-          ref={flashListRef}
-          data={messagesWithTyping}
-          renderItem={renderMessage}
-          keyExtractor={keyExtractor}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
+        <UnifiedChatInterface
+          messages={messagesWithTyping}
+          onQuerySubmit={handleQuerySubmit}
+          onVoicePress={handleVoicePress}
+          onAddPress={handleAddPress}
+          onImagePress={handleImagePress}
         />
       )}
-      
-      {/* Chat Input */}
-      <QueryBar
-        onSubmit={handleQuerySubmit}
-        onVoicePress={handleVoicePress}
-        placeholder="Chat with Kenesis Vision AI Assistant"
-      />
     </View>
   );
 }
@@ -238,26 +324,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 50, // Account for status bar
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: 'SF Pro Display',
-    fontWeight: '600',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    fontFamily: 'SF Pro Display',
-    fontWeight: '400',
-    marginTop: 2,
-  },
-  listContainer: {
-    paddingTop: 16,
-    paddingBottom: 120, // Account for input bar
   },
 });
