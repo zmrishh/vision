@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Interactive3DGlass from '@/components/ui/Interactive3DGlass';
 import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
@@ -69,29 +70,6 @@ export default function HomeScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [currentDate] = useState('Today');
   const [showLivePreview, setShowLivePreview] = useState(false);
-  const [pulseAnim] = useState(new Animated.Value(1));
-
-  // Pulse animation for recording orb
-  useEffect(() => {
-    if (isRecording) {
-      const pulse = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      pulse.start();
-      return () => pulse.stop();
-    }
-  }, [isRecording, pulseAnim]);
 
   const quickWidgets: QuickWidget[] = [
     {
@@ -319,27 +297,11 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Central Recording Orb */}
+        {/* Interactive 3D Glass Model */}
         <View style={styles.centralOrbContainer}>
-          <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-            <TouchableOpacity
-              style={[styles.centralOrb, {
-                backgroundColor: isRecording ? Colors[colorScheme ?? 'light'].accent : Colors[colorScheme ?? 'light'].surface,
-                borderColor: isRecording ? Colors[colorScheme ?? 'light'].accent : Colors[colorScheme ?? 'light'].border,
-                shadowColor: isRecording ? Colors[colorScheme ?? 'light'].accent : '#000',
-                shadowOpacity: isRecording ? 0.4 : 0.1,
-              }]}
-              onPress={handleRecordingToggle}
-            >
-              <View style={styles.orbInner}>
-                <IconSymbol
-                  name={isRecording ? "stop.circle" : "record.circle"}
-                  size={48}
-                  color={isRecording ? "white" : Colors[colorScheme ?? 'light'].accent}
-                />
-              </View>
-            </TouchableOpacity>
-          </Animated.View>
+          <Interactive3DGlass
+            size={200}
+          />
 
           <Text style={[styles.recordingTime, { color: Colors[colorScheme ?? 'light'].text }]}>
             {glassesStats.recordingTime}

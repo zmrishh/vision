@@ -88,7 +88,7 @@ export function ChatZeroState({
           style={styles.header}
         >
           <View style={styles.headerLeft}>
-            <View style={styles.logoContainer}>
+            <View style={styles.logoContainer}> 
               <Text style={styles.logoIcon}>🧠</Text>
               <Text style={[styles.logoText, { color: colors.text }]}>Kenesis Vision</Text>
             </View>
