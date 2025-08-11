@@ -35,6 +35,16 @@ export const Colors = {
     // Tab navigation
     tabIconDefault: '#9CA3AF',
     tabIconSelected: '#2062FF',
+    
+    // Icon color for compatibility
+    icon: '#6B7280',
+    
+    // Gradient colors
+    gradient: {
+      primary: ['#2062FF', '#1A52CC'],
+      secondary: ['#10B981', '#059669'],
+      accent: ['#8B5CF6', '#7C3AED'],
+    },
   },
   dark: {
     // Claude-style dark theme
@@ -68,5 +78,15 @@ export const Colors = {
     // Tab navigation
     tabIconDefault: '#808080',
     tabIconSelected: '#8B5CF6',
+    
+    // Icon color for compatibility
+    icon: '#B0B0B0',
+    
+    // Gradient colors
+    gradient: {
+      primary: ['#8B5CF6', '#7C3AED'],
+      secondary: ['#10B981', '#059669'],
+      accent: ['#2062FF', '#1A52CC'],
+    },
   },
 };

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Animated, {
   FadeInUp,
-  FadeOutDown,
   useSharedValue,
   useAnimatedStyle,
   withTiming
@@ -28,7 +27,7 @@ export function ChatZeroState({
 }: ChatZeroStateProps) {
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? COLORS.dark : COLORS.light;
-  const [isInputFocused, setIsInputFocused] = useState(false);
+  // Removed unused state
 
   const suggestionsOpacity = useSharedValue(1);
   const suggestionsTranslateY = useSharedValue(0);
@@ -56,8 +55,6 @@ export function ChatZeroState({
   };
 
   const handleInputFocusChange = (focused: boolean) => {
-    setIsInputFocused(focused);
-
     if (focused) {
       // Hide suggestions with animation when keyboard appears
       suggestionsOpacity.value = withTiming(0, { duration: 200 });

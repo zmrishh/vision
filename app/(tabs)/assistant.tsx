@@ -78,7 +78,7 @@ export default function AssistantScreen() {
       setIsTyping(false);
       setMessages(prev => [...prev, assistantMessage]);
     }, 1500 + Math.random() * 1000); // Random delay between 1.5-2.5 seconds
-  }, []);
+  }, [messages.length]);
 
   const handleVoicePress = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -115,7 +115,7 @@ export default function AssistantScreen() {
       console.error('Voice input error:', error);
       Alert.alert('Error', 'Failed to initialize voice input.');
     }
-  }, []);
+  }, [handleQuerySubmit]);
 
   const handleAddPress = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -161,7 +161,7 @@ export default function AssistantScreen() {
         }
       ]
     );
-  }, []);
+  }, [handleQuerySubmit]);
 
   const handleImagePress = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -227,7 +227,7 @@ export default function AssistantScreen() {
         }
       ]
     );
-  }, []);
+  }, [handleQuerySubmit]);
 
   const handleSuggestionPress = useCallback((suggestion: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -274,7 +274,7 @@ export default function AssistantScreen() {
       setIsTyping(false);
       setMessages(prev => [...prev, assistantMessage]);
     }, 1500 + Math.random() * 1000);
-  }, [setMessages, setIsTyping]);
+  }, []);
 
   // Create typing indicator message when needed
   const messagesWithTyping = useMemo(() => {

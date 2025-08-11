@@ -7,7 +7,6 @@ import {
   StyleSheet, 
   KeyboardAvoidingView, 
   Platform,
-  Animated as RNAnimated,
   I18nManager
 } from 'react-native';
 import Animated, { 

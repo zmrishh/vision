@@ -1,6 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { Colors } from '@/constants/Colors';
+import { TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface ButtonProps {

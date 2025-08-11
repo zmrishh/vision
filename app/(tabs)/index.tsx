@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
   StatusBar,
   Alert,
-  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -17,7 +15,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import Interactive3DGlass from '@/components/ui/Interactive3DGlass';
 import * as Haptics from 'expo-haptics';
 
-const { width } = Dimensions.get('window');
+
 
 interface GlassesStats {
   recordingTime: string;
@@ -67,7 +65,7 @@ export default function HomeScreen() {
     lastSync: '2m ago',
   });
 
-  const [isRecording, setIsRecording] = useState(false);
+  // Removed unused recording state
   const [currentDate] = useState('Today');
   const [showLivePreview, setShowLivePreview] = useState(false);
 
@@ -149,7 +147,7 @@ export default function HomeScreen() {
       subtitle: 'Find charging station nearby',
       action: 'Find Charger',
       icon: 'battery.25',
-      priority: glassesStats.batteryLevel < 20 ? 'high' : 'low',
+      priority: (glassesStats.batteryLevel < 20 ? 'high' : 'low') as 'high' | 'medium' | 'low',
     },
     {
       id: '2',
@@ -157,7 +155,7 @@ export default function HomeScreen() {
       subtitle: 'Would you like to save this person?',
       action: 'Save Contact',
       icon: 'person.crop.circle.badge.plus',
-      priority: 'medium',
+      priority: 'medium' as 'high' | 'medium' | 'low',
     },
     {
       id: '3',
@@ -165,18 +163,14 @@ export default function HomeScreen() {
       subtitle: 'Prepare face recognition for attendees',
       action: 'Prepare',
       icon: 'calendar',
-      priority: 'high',
+      priority: 'high' as 'high' | 'medium' | 'low',
     },
   ].filter(suggestion =>
     suggestion.priority === 'high' ||
     (suggestion.priority === 'medium' && Math.random() > 0.5)
   );
 
-  const handleRecordingToggle = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setIsRecording(!isRecording);
-    Alert.alert('Recording', isRecording ? 'Recording stopped' : 'Recording started');
-  };
+
 
   const handleQuickCapture = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

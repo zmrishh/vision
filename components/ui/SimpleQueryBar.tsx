@@ -4,8 +4,6 @@ import {
   TextInput, 
   TouchableOpacity, 
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   Keyboard
 } from 'react-native';
 import { IconSymbol } from './IconSymbol';

@@ -5,7 +5,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
   StatusBar,
 } from 'react-native';
@@ -26,8 +25,7 @@ interface MemoryItem {
 
 export default function MemoryScreen() {
   const colorScheme = useColorScheme();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  // Removed unused state variables
 
   const [memories] = useState<MemoryItem[]>([
     {
@@ -79,19 +77,7 @@ export default function MemoryScreen() {
     important: memories.filter(m => m.isImportant).length,
   };
 
-  const filterTypes = [
-    { key: 'all', label: 'All' },
-    { key: 'photo', label: 'Photos' },
-    { key: 'person', label: 'People' },
-    { key: 'place', label: 'Places' },
-  ];
-
-  const filteredMemories = memories.filter(memory => {
-    const matchesSearch = memory.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         memory.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilter === 'all' || memory.type === selectedFilter;
-    return matchesSearch && matchesFilter;
-  });
+  // Removed unused filter logic for now
 
   const formatTimestamp = (timestamp: Date) => {
     const now = new Date();

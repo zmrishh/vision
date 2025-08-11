@@ -27,7 +27,7 @@ export function GradientView({
 
   return (
     <LinearGradient
-      colors={gradientColors}
+      colors={gradientColors as [string, string, ...string[]]}
       start={start}
       end={end}
       style={style}

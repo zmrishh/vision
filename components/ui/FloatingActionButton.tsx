@@ -30,7 +30,7 @@ export function FloatingActionButton({
     >
       <GradientView
         gradientType={gradientType}
-        style={[styles.gradient, { borderRadius: size / 2 }]}
+        style={[styles.gradient, { borderRadius: size / 2 }] as any}
       >
         <IconSymbol name={icon as any} size={size * 0.4} color="white" />
       </GradientView>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -71,7 +71,6 @@ export function UnifiedChatInterface({
           keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.messagesContent}
-          estimatedItemSize={80}
         />
       </View>
 

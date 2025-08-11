@@ -78,7 +78,7 @@ export function AssistantBubble({
                 backgroundColor: colors.accentLight,
                 borderColor: colors.accent + '20',
               }
-            ]}
+            ] as any}
             textStyle={{ color: colors.accent }}
           >
             {action}
